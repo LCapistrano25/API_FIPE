@@ -1,12 +1,29 @@
-from .constants import MODEL_RANDOM_FOREST_REGRESSOR
+from functools import lru_cache
 import joblib
-from .constants import ENCODER_BRAND, ENCODER_FUEL, ENCODER_MODEL, ENCODER_GEAR
+from .constants import (
+    MODEL_RANDOM_FOREST_REGRESSOR,
+    ENCODER_BRAND,
+    ENCODER_FUEL,
+    ENCODER_MODEL,
+    ENCODER_GEAR,
+)
 
-# Carregando o modelo
-model_random_forest_regressor = joblib.load(MODEL_RANDOM_FOREST_REGRESSOR, mmap_mode="r")
+@lru_cache(maxsize=1)
+def get_model_random_forest_regressor():
+    return joblib.load(MODEL_RANDOM_FOREST_REGRESSOR, mmap_mode="r")
 
-# Carregando os encoders
-encoder_brand = joblib.load(ENCODER_BRAND, mmap_mode="r")
-encoder_fuel = joblib.load(ENCODER_FUEL, mmap_mode="r")
-encoder_model = joblib.load(ENCODER_MODEL, mmap_mode="r")
-encoder_gear = joblib.load(ENCODER_GEAR, mmap_mode="r")
+@lru_cache(maxsize=1)
+def get_encoder_brand():
+    return joblib.load(ENCODER_BRAND, mmap_mode="r")
+
+@lru_cache(maxsize=1)
+def get_encoder_fuel():
+    return joblib.load(ENCODER_FUEL, mmap_mode="r")
+
+@lru_cache(maxsize=1)
+def get_encoder_model():
+    return joblib.load(ENCODER_MODEL, mmap_mode="r")
+
+@lru_cache(maxsize=1)
+def get_encoder_gear():
+    return joblib.load(ENCODER_GEAR, mmap_mode="r")

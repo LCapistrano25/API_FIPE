@@ -2,7 +2,13 @@ from django.utils import timezone
 from predict.serializers import PredictSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .model_loader import model_random_forest_regressor, encoder_brand, encoder_fuel, encoder_model, encoder_gear
+from .model_loader import (
+    get_model_random_forest_regressor,
+    get_encoder_brand,
+    get_encoder_fuel,
+    get_encoder_model,
+    get_encoder_gear,
+)
 import numpy as np
 
 class PredictAPIView(APIView):
@@ -15,10 +21,10 @@ class PredictAPIView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=400)
         
-        brand_encoded = encoder_brand.transform([data["brand"]])[0]
-        model_encoded = encoder_model.transform([data["model"]])[0]
-        fuel_encoded = encoder_fuel.transform([data["fuel"]])[0]
-        gear_encoded = encoder_gear.transform([data["gear"]])[0]
+        brand_encoded = get_encoder_brand().transform([data["brand"]])[0]
+        model_encoded = get_encoder_model().transform([data["model"]])[0]
+        fuel_encoded = get_encoder_fuel().transform([data["fuel"]])[0]
+        gear_encoded = get_encoder_gear().transform([data["gear"]])[0]
 
         year_use =  timezone.now().year - int(data["year"])
         
@@ -32,5 +38,5 @@ class PredictAPIView(APIView):
             gear_encoded,
         ]])
         
-        predict = model_random_forest_regressor.predict(input)
+        predict = get_model_random_forest_regressor().predict(input)
         return Response({"prediction": float(predict[0])})
