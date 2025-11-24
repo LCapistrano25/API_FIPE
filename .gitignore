@@ -4,3 +4,4 @@ teste.ipynb
 __pycache__/
 predict/machine_learn/models_trained/model_rf.joblib
 predict/machine_learn/models_trained/model_voting.joblib
+.env
