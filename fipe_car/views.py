@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
 from fipe_car.pagination import FipeCarPagination, GenericPagination
 from fipe_car.models import FipeCar
 from fipe_car.serializers import FipeCarSerializer
@@ -9,8 +10,9 @@ from rest_framework.response import Response
 class FipeCarView(ListAPIView):
     queryset = FipeCar.objects.all()
     serializer_class = FipeCarSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['model', 'brand', 'fuel_type', 'gear_type']
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['model', 'brand', 'fuel_type', 'gear_type', 'year', 'engine_size']
+    ordering_fields = ['price', 'year', 'engine_size']
     pagination_class = FipeCarPagination
 
 class BaseDistinctListView(APIView):

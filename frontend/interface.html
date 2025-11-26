@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FIPE Dashboard – Black & Gold</title>
+
+    <style>
+        /* ----------------------------------------------------
+           PALETA BLACK & GOLD PREMIUM
+        ----------------------------------------------------- */
+        :root {
+            --bg: #0c0c0c;
+            --sidebar-bg: #111111;
+            --panel: #151515;
+            --accent: #d4af37; /* Dourado premium */
+            --accent-light: #bda36b33;
+            --muted: #9b9b9b;
+            --text: #f5f5f5;
+            --border: #bda36b55;
+            --card: #1a1a1a;
+            --radius: 10px;
+            --shadow: 0 2px 10px rgba(0,0,0,0.5);
+            --font: "Inter", Arial, sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* ----------------------------------------------------
+           LAYOUT
+        ----------------------------------------------------- */
+        .layout {
+            display: grid;
+            grid-template-columns: 270px 1fr;
+            height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+        }
+
+        .main {
+            overflow-y: auto;
+            padding: 28px;
+        }
+
+        /* ----------------------------------------------------
+           SIDEBAR
+        ----------------------------------------------------- */
+        .brand {
+            padding: 22px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 20px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section {
+            padding: 18px 22px;
+            border-bottom: 1px solid #ffffff13;
+        }
+
+        .section h3 {
+            margin: 0 0 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+            letter-spacing: 0.4px;
+        }
+
+        /* Inputs */
+        .input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: var(--radius);
+            border: 1px solid #ffffff22;
+            background: #1c1c1c;
+            color: var(--text);
+            font-size: 14px;
+            transition: 0.15s border;
+        }
+
+        .input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        /* Lists */
+        .list {
+            display: grid;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .list-item {
+            padding: 9px 12px;
+            border-radius: var(--radius);
+            border: 1px solid #ffffff22;
+            background: #1a1a1a;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.15s;
+        }
+
+        .list-item:hover {
+            background: var(--accent-light);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Buttons */
+        .pagination {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .button {
+            padding: 9px 12px;
+            border-radius: var(--radius);
+            border: 1px solid var(--accent);
+            background: var(--accent);
+            color: #000;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.15s;
+        }
+
+        .button.secondary {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .button:hover {
+            filter: brightness(1.15);
+        }
+
+        .button:disabled {
+            background: #6c5f2bdd;
+            border-color: #6c5f2bdd;
+            color: #222;
+            cursor: not-allowed;
+        }
+
+        /* Chips */
+        .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+        .chip {
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            background: #111;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--muted);
+            transition: 0.15s;
+        }
+        .chip:hover { color: var(--accent); border-color: var(--accent); }
+        .chip.selected {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #000;
+        }
+
+        /* ----------------------------------------------------
+           MAIN / CARDS
+        ----------------------------------------------------- */
+        .grid {
+            display: grid;
+            gap: 26px;
+        }
+
+        .grid-cols-2 {
+            grid-template-columns: 1.4fr 0.8fr;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .card h2 {
+            margin: 0 0 16px;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        /* Car list */
+        .car-list {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 16px;
+            margin-top: 14px;
+        }
+
+        .car-item {
+            background: #141414;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px;
+            box-shadow: var(--shadow);
+            transition: 0.15s;
+        }
+
+        .car-item:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 7px;
+            border-radius: 6px;
+            background: #ffffff1a;
+            color: var(--accent);
+            font-size: 12px;
+            margin-right: 5px;
+            border: 1px solid var(--accent);
+        }
+
+        .result {
+            margin-top: 12px;
+            padding: 12px;
+            border: 1px solid var(--accent);
+            border-radius: var(--radius);
+            background: #d4af3722;
+            font-weight: 600;
+            color: var(--accent);
+            display: none;
+        }
+
+        .empty {
+            padding: 12px;
+            border: 1px dashed var(--border);
+            border-radius: var(--radius);
+            text-align: center;
+            color: var(--muted);
+            background: #00000022;
+        }
+
+        .options-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 8px 0;
+        }
+        .options-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted);
+            letter-spacing: 0.3px;
+        }
+
+        .footer {
+            padding: 14px 20px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+            .grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LAYOUT -->
+    <div class="layout">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="brand">FIPE</div>
+
+            <div class="section">
+                <h3>Marca</h3>
+                <input class="input" id="brand-search" placeholder="Buscar marca">
+                <div class="options-row"><span class="options-label">Opções</span><span class="badge" id="brand-count">0</span></div>
+                <div class="list" id="brand-list"></div>
+
+                <div class="pagination">
+                    <button class="button secondary" id="brand-prev">Anterior</button>
+                    <button class="button" id="brand-next">Próxima</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Modelo</h3>
+                <input class="input" id="model-search" placeholder="Buscar modelo">
+                <div class="options-row"><span class="options-label">Opções</span><span class="badge" id="model-count">0</span></div>
+                <div class="list" id="model-list"></div>
+
+                <div class="pagination">
+                    <button class="button secondary" id="model-prev">Anterior</button>
+                    <button class="button" id="model-next">Próxima</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Combustível</h3>
+                <div class="row">
+                    <input class="input" id="fuel-brand" placeholder="Marca">
+                    <input class="input" id="fuel-model" placeholder="Modelo">
+                </div>
+                <div class="options-row"><span class="options-label">Opções</span><span class="badge" id="fuel-count">0</span></div>
+                <div class="list" id="fuel-list"></div>
+
+                <div class="pagination">
+                    <button class="button secondary" id="fuel-prev">Anterior</button>
+                    <button class="button" id="fuel-next">Próxima</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Câmbio</h3>
+                <div class="row">
+                    <input class="input" id="gear-brand" placeholder="Marca">
+                    <input class="input" id="gear-model" placeholder="Modelo">
+                </div>
+                <div class="options-row"><span class="options-label">Opções</span><span class="badge" id="gear-count">0</span></div>
+                <div class="list" id="gear-list"></div>
+
+                <div class="pagination">
+                    <button class="button secondary" id="gear-prev">Anterior</button>
+                    <button class="button" id="gear-next">Próxima</button>
+                </div>
+            </div>
+
+            <div class="footer">Servidor local ativo • 127.0.0.1</div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main">
+            <div class="grid grid-cols-2">
+
+                <!-- Lista de Carros -->
+                <div class="card">
+                    <h2>Lista de Carros</h2>
+
+                    <div class="row">
+                        <input class="input" id="car-brand" placeholder="Marca">
+                        <input class="input" id="car-model" placeholder="Modelo">
+                    </div>
+
+                    <div class="row">
+                        <input class="input" id="car-fuel" placeholder="Combustível">
+                        <input class="input" id="car-gear" placeholder="Câmbio">
+                    </div>
+
+                    <div class="row">
+                        <select class="input" id="car-year"></select>
+                        <input class="input" id="car-engine" type="number" step="0.1" placeholder="Motor (ex: 2.0)">
+                    </div>
+
+                    <div class="row">
+                        <div class="chips" id="car-order-chips">
+                            <button class="chip" data-order="price">Preço ↑</button>
+                            <button class="chip" data-order="-price">Preço ↓</button>
+                            <button class="chip" data-order="year">Ano ↑</button>
+                            <button class="chip" data-order="-year">Ano ↓</button>
+                            <button class="chip" data-order="engine_size">Motor ↑</button>
+                            <button class="chip" data-order="-engine_size">Motor ↓</button>
+                        </div>
+                    </div>
+
+                    <div class="row" style="justify-content: flex-end; margin-bottom: 0;">
+                        <button class="button secondary" id="car-clear">Limpar</button>
+                        <button class="button" id="car-load">Filtrar</button>
+                    </div>
+
+                    <div id="car-list" class="car-list"></div>
+
+                    <div class="pagination">
+                        <button class="button secondary" id="car-prev">Anterior</button>
+                        <button class="button" id="car-next">Próxima</button>
+                    </div>
+                </div>
+
+                <!-- Previsão -->
+                <div class="card">
+                    <h2>Prever Preço</h2>
+
+                    <div class="row">
+                        <select class="input" id="p-year"></select>
+                        <input class="input" id="p-engine" type="number" step="0.1" placeholder="Motor (ex: 2.0)">
+                    </div>
+
+                    <div class="row">
+                        <input class="input" id="p-brand" placeholder="Marca">
+                        <input class="input" id="p-model" placeholder="Modelo">
+                    </div>
+
+                    <div class="row">
+                        <input class="input" id="p-fuel" placeholder="Combustível">
+                        <input class="input" id="p-gear" placeholder="Câmbio">
+                    </div>
+
+                    <button class="button" id="predict-btn" disabled>Prever</button>
+
+                    <div id="prediction-result" class="result"></div>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <script src="interface.js"></script>
+
+</body>
+</html>
