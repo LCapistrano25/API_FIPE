@@ -71,6 +71,9 @@ Aplicação composta por uma API em Django/DRF e um frontend estático para cons
 - Para usar outro modelo, ajuste o loader e a chamada de `predict/views.py` para carregar o artefato correspondente conforme caminhos definidos em `predict/constants.py`.
 - Garanta que os encoders (`encoder_brand.pkl`, `encoder_model.pkl`, `encoder_fuel.pkl`, `encoder_gear.pkl`) estejam presentes, pois a API codifica atributos antes da inferência (`predict/views.py:24-28`).
 
+## Notebook (Colab)
+- Treino e exploração dos modelos: https://colab.research.google.com/drive/1fOE4rKyNI0M5bBQaPE2lnsgPoXRbQnIO?usp=sharing
+
 ## Uso
 - Preencha filtros no painel lateral e clique em `Filtrar` para carregar a lista.
 - Use chips para ordenar por preço/ano/motor; conflitos são prevenidos em `frontend/interface.js:346-371`.
