@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", function(){
         let gearNext = null, gearPrev = null;
         let carNext = null, carPrev = null;
         let orderings = [];
+        let yearNext = null, yearPrev = null;
+        let engineNext = null, enginePrev = null;
 
         function el(id){ return document.getElementById(id); }
 
@@ -17,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function(){
         function renderList(containerId, items, click){
             const c = el(containerId);
             c.innerHTML = "";
-            const nextMap = { "brand-list": "brand-next", "model-list": "model-next", "fuel-list": "fuel-next", "gear-list": "gear-next" };
+            const nextMap = { "brand-list": "brand-next", "model-list": "model-next", "fuel-list": "fuel-next", "gear-list": "gear-next", "year-list": "year-next", "engine-list": "engine-next" };
             const nextBtnId = nextMap[containerId];
             if (!items || items.length === 0) {
                 const d = document.createElement("div");
@@ -37,6 +39,50 @@ document.addEventListener("DOMContentLoaded", function(){
             });
         }
 
+        async function loadYears(url){
+            const brand = encodeURIComponent(el("car-brand").value);
+            const model = encodeURIComponent(el("car-model").value);
+            const base = `${BASE_URL}/api/v1/fipe/car/years/?page_size=10`;
+            const full = `${base}${brand ? `&brand=${brand}`: ""}${model ? `&model=${model}`: ""}`;
+            const json = await fetchJson(url || full);
+            const list = Array.isArray(json) ? json : json.results;
+            const countEl = el("year-count");
+            if (countEl) countEl.textContent = `${list.length}`;
+            renderList("year-list", list, (v) => {
+                el("car-year").value = v;
+                syncYearDisplay();
+                updatePredictButtonState();
+            });
+            yearNext = json.next || null;
+            yearPrev = json.previous || null;
+            const yPrev = el("year-prev");
+            const yNext = el("year-next");
+            if (yPrev) yPrev.style.display = yearPrev ? "" : "none";
+            if (yNext) yNext.style.display = yearNext ? "" : "none";
+        }
+
+        async function loadEngines(url){
+            const brand = encodeURIComponent(el("car-brand").value);
+            const model = encodeURIComponent(el("car-model").value);
+            const base = `${BASE_URL}/api/v1/fipe/car/engine_sizes/?page_size=10`;
+            const full = `${base}${brand ? `&brand=${brand}`: ""}${model ? `&model=${model}`: ""}`;
+            const json = await fetchJson(url || full);
+            const list = Array.isArray(json) ? json : json.results;
+            const countEl = el("engine-count");
+            if (countEl) countEl.textContent = `${list.length}`;
+            renderList("engine-list", list, (v) => {
+                el("car-engine").value = v;
+                el("p-engine").value = v;
+                updatePredictButtonState();
+            });
+            engineNext = json.next || null;
+            enginePrev = json.previous || null;
+            const ePrev = el("engine-prev");
+            const eNext = el("engine-next");
+            if (ePrev) ePrev.style.display = enginePrev ? "" : "none";
+            if (eNext) eNext.style.display = engineNext ? "" : "none";
+        }
+
         async function loadBrands(url){
             const json = await fetchJson(url);
             const list = Array.isArray(json) ? json : json.results;
@@ -49,6 +95,8 @@ document.addEventListener("DOMContentLoaded", function(){
                 el("p-brand").value = v;
                 const b = encodeURIComponent(v);
                 loadModels(`${BASE_URL}/api/v1/fipe/car/models/?page_size=10&brand=${b}`);
+                loadYears();
+                loadEngines();
             });
             brandNext = json.next || null;
             brandPrev = json.previous || null;
@@ -70,6 +118,8 @@ document.addEventListener("DOMContentLoaded", function(){
                 el("p-model").value = v;
                 loadFuel();
                 loadGear();
+                loadYears();
+                loadEngines();
             });
             modelNext = json.next || null;
             modelPrev = json.previous || null;
@@ -126,6 +176,7 @@ document.addEventListener("DOMContentLoaded", function(){
             const model = encodeURIComponent(el("car-model").value);
             const fuel = encodeURIComponent(el("car-fuel").value);
             const gear = encodeURIComponent(el("car-gear").value);
+            const fipe = encodeURIComponent(el("car-fipe").value);
             const year = encodeURIComponent(el("car-year").value);
             const engine = encodeURIComponent(el("car-engine").value);
             const orderingParam = orderings.join(",");
@@ -135,6 +186,7 @@ document.addEventListener("DOMContentLoaded", function(){
                 `${model ? `&model=${model}`:""}` +
                 `${fuel ? `&fuel_type=${fuel}`:""}` +
                 `${gear ? `&gear_type=${gear}`:""}` +
+                `${fipe ? `&fipe_id=${fipe}`:""}` +
                 `${year ? `&year=${year}`:""}` +
                 `${engine ? `&engine_size=${engine}`:""}` +
                 `${orderingParam ? `&ordering=${encodeURIComponent(orderingParam)}`:""}`;
@@ -156,17 +208,40 @@ document.addEventListener("DOMContentLoaded", function(){
             list.forEach(car => {
                 const d = document.createElement("div");
                 d.className = "car-item";
-                d.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div>
+                d.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                    <div style="flex:1;">
                         <div style="font-weight:600;padding-bottom:6px;">${car.brand} ${car.model}</div>
                         <div class="badge">${car.year}</div>
                         <div class="badge">${car.fuel_type}</div>
                         <div class="badge">${car.gear_type}</div>
                         <div class="badge">${car.engine_size}</div>
+                        <div class="badge">FIPE ${car.fipe_id}</div>
                     </div>
                     <div style="font-weight:700; color:#aaf581;">R$ ${car.price.toLocaleString()}</div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+                    <button class="button secondary car-predict-btn">Prever</button>
                 </div>`;
                 container.appendChild(d);
+                const btn = d.querySelector('.car-predict-btn');
+                if (btn){
+                    btn.addEventListener('click', () => {
+                        el("p-brand").value = car.brand;
+                        el("p-model").value = car.model;
+                        el("p-fuel").value = car.fuel_type;
+                        el("p-gear").value = car.gear_type;
+                        el("p-engine").value = String(car.engine_size);
+                        el("car-brand").value = car.brand;
+                        el("car-model").value = car.model;
+                        el("car-fuel").value = car.fuel_type;
+                        el("car-gear").value = car.gear_type;
+                        el("car-engine").value = String(car.engine_size);
+                        el("car-year").value = String(car.year);
+                        const yd = el("p-year-display"); if (yd) yd.value = String(car.year);
+                        updatePredictButtonState();
+                    });
+                }
             });
             carNext = json.next || null;
             carPrev = json.previous || null;
@@ -181,7 +256,8 @@ document.addEventListener("DOMContentLoaded", function(){
             box.style.display = "block";
             box.innerHTML = "Calculando...";
             const data = {
-                year: el("p-year").value,
+                consult_year: el("p-year-display").value,
+                year: el("car-year").value,
                 engine: el("p-engine").value,
                 brand: el("p-brand").value,
                 model: el("p-model").value,
@@ -203,7 +279,7 @@ document.addEventListener("DOMContentLoaded", function(){
         }
 
         function populateYears(){
-            ["p-year","car-year"].forEach(id => {
+            ["car-year"].forEach(id => {
                 const select = el(id);
                 if (!select) return;
                 select.innerHTML = "<option value=''>Selecione o ano</option>";
@@ -217,10 +293,28 @@ document.addEventListener("DOMContentLoaded", function(){
                 select.value = String(current);
             });
         }
+        function syncYearDisplay(){
+            const d = el("p-year-display");
+            if (d) d.value = el("car-year").value || "";
+        }
+
+        function populateBuyYear(){
+            const select = el("p-buyyear");
+            if (!select) return;
+            select.innerHTML = "<option value=''>Ano que deseja comprar</option>";
+            const current = new Date().getFullYear();
+            for (let y = current; y <= current + 5; y++) {
+                const opt = document.createElement("option");
+                opt.value = String(y);
+                opt.textContent = String(y);
+                select.appendChild(opt);
+            }
+        }
 
         function isPredictReady(){
             return (
-                !!el("p-year").value &&
+                !!el("car-year").value &&
+                !!el("p-buyyear").value &&
                 !!el("p-engine").value &&
                 !!el("p-brand").value &&
                 !!el("p-model").value &&
@@ -243,8 +337,12 @@ document.addEventListener("DOMContentLoaded", function(){
         el("gear-prev").onclick = () => { if (gearPrev) loadGear(gearPrev); };
         el("car-next").onclick = () => { if (carNext) loadCars(carNext); };
         el("car-prev").onclick = () => { if (carPrev) loadCars(carPrev); };
+        el("year-next").onclick = () => { if (yearNext) loadYears(yearNext); };
+        el("year-prev").onclick = () => { if (yearPrev) loadYears(yearPrev); };
+        el("engine-next").onclick = () => { if (engineNext) loadEngines(engineNext); };
+        el("engine-prev").onclick = () => { if (enginePrev) loadEngines(enginePrev); };
         el("car-load").onclick = () => loadCars();
-        el("car-clear").onclick = () => { el("car-brand").value = ""; el("car-model").value = ""; el("car-fuel").value = ""; el("car-gear").value = ""; el("car-year").value = ""; el("car-engine").value = ""; orderings = []; document.querySelectorAll('#car-order-chips .chip').forEach(ch => ch.classList.remove('selected')); loadCars(); };
+        el("car-clear").onclick = () => { el("car-brand").value = ""; el("car-model").value = ""; el("car-fuel").value = ""; el("car-gear").value = ""; el("car-fipe").value = ""; el("car-year").value = ""; el("car-engine").value = ""; const d = el("p-year-display"); if (d) d.value = ""; orderings = []; document.querySelectorAll('#car-order-chips .chip').forEach(ch => ch.classList.remove('selected')); loadYears(); loadEngines(); loadCars(); };
         document.querySelectorAll('#car-order-chips .chip').forEach(chip => {
             chip.addEventListener('click', () => {
                 const val = chip.dataset.order;
@@ -272,7 +370,7 @@ document.addEventListener("DOMContentLoaded", function(){
             });
         });
         el("predict-btn").onclick = () => predict();
-        ["p-year","p-engine","p-brand","p-model","p-fuel","p-gear"].forEach(id => {
+        ["car-year","p-engine","p-brand","p-model","p-fuel","p-gear","p-buyyear"].forEach(id => {
             el(id).addEventListener("input", updatePredictButtonState);
             el(id).addEventListener("change", updatePredictButtonState);
         });
@@ -296,8 +394,29 @@ document.addEventListener("DOMContentLoaded", function(){
         loadBrands(`${BASE_URL}/api/v1/fipe/car/brands/?page_size=10`);
         loadModels(`${BASE_URL}/api/v1/fipe/car/models/?page_size=10`);
         populateYears();
+        syncYearDisplay();
+        populateBuyYear();
+        loadYears();
+        loadEngines();
         loadFuel();
         loadGear();
         loadCars();
         updatePredictButtonState();
+
+        function formatFipe(value){
+            const digits = String(value).replace(/\D/g, "");
+            if (!digits) return "";
+            const a = digits.slice(0,6);
+            const b = digits.slice(6,7);
+            return b ? `${a}-${b}` : a;
+        }
+
+        const fipeInput = el("car-fipe");
+        if (fipeInput){
+            fipeInput.addEventListener("input", () => {
+                const v = formatFipe(fipeInput.value);
+                fipeInput.value = v;
+            });
+        }
+        el("car-year").addEventListener("change", syncYearDisplay);
 });

@@ -12,7 +12,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('Start importing FIPE data...'))
 
-        df = pd.read_csv('machine_learn/fipe_cars.csv')
+        df = pd.read_csv(r'predict/machine_learn/fipe_cars.csv')
         df = self.clean_data(df)
 
         if df is None or df.empty:
@@ -31,23 +31,16 @@ class Command(BaseCommand):
         df = df.dropna()
 
         # Convertendo colunas
-        df['year_model'] = pd.to_numeric(df['year_model'])
-        df['engine_size'] = pd.to_numeric(df['engine_size'])
-        df['avg_price_brl'] = pd.to_numeric(df['avg_price_brl'])
+        df['ano_modelo'] = pd.to_numeric(df['ano_modelo'])
+        df['potencia_motor'] = pd.to_numeric(df['potencia_motor'])
+        df['preco_medio_FIPE'] = pd.to_numeric(df['preco_medio_FIPE'])
 
         # Criando coluna derivada
-        df['anos_uso'] = df['year_of_reference'] - df['year_model']
+        df['anos_uso'] = df['ano_referencia'] - df['ano_modelo']
 
         # Renomeando
         df.rename(columns={
             'fipe_code': 'fipe_id',
-            'brand': 'marca',
-            'model': 'modelo',
-            'fuel': 'combustivel',
-            'gear': 'cambio',
-            'engine_size': 'potencia_motor',
-            'year_model': 'ano_modelo',
-            'avg_price_brl': 'preco_medio_FIPE'
         }, inplace=True)
 
         # Selecionando colunas relevantes

@@ -29,6 +29,7 @@ class PredictAPIView(APIView):
         year_use =  timezone.now().year - int(data["year"])
         
         input = np.array([[
+            data["consult_year"],
             data["year"],
             year_use,
             data["engine"],

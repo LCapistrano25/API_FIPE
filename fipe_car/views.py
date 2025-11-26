@@ -11,7 +11,7 @@ class FipeCarView(ListAPIView):
     queryset = FipeCar.objects.all()
     serializer_class = FipeCarSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['model', 'brand', 'fuel_type', 'gear_type', 'year', 'engine_size']
+    filterset_fields = ['model', 'brand', 'fuel_type', 'gear_type', 'year', 'engine_size', 'fipe_id']
     ordering_fields = ['price', 'year', 'engine_size']
     pagination_class = FipeCarPagination
 
@@ -53,6 +53,22 @@ class BaseDistinctListView(APIView):
             if model:
                 base = base.filter(model__icontains=model)
 
+        if self.field_name == "year":
+            brand = request.query_params.get("brand")
+            model = request.query_params.get("model")
+            if brand:
+                base = base.filter(brand__icontains=brand)
+            if model:
+                base = base.filter(model__icontains=model)
+                
+        if self.field_name == "engine_size":
+            brand = request.query_params.get("brand")
+            model = request.query_params.get("model")
+            if brand:
+                base = base.filter(brand__icontains=brand)
+            if model:
+                base = base.filter(model__icontains=model)
+                
         queryset = (
             base
             .values_list(self.field_name, flat=True)
@@ -75,3 +91,9 @@ class FuelTypeFipeCarView(BaseDistinctListView):
 
 class GearTypeFipeCarView(BaseDistinctListView):
     field_name = "gear_type"
+
+class YearFipeCarView(BaseDistinctListView):
+    field_name = "year"
+
+class EngineSizeFipeCarView(BaseDistinctListView):
+    field_name = "engine_size"

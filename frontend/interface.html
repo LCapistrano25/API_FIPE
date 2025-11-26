@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FIPE Dashboard – Black & Gold</title>
+    <title>FIPE</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230c0c0c'/%3E%3Cpath d='M12 36h28l6-10h6a2 2 0 012 2v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-2a4 4 0 014-4z' fill='%23d4af37'/%3E%3Ccircle cx='20' cy='44' r='4' fill='%23d4af37'/%3E%3Ccircle cx='44' cy='44' r='4' fill='%23d4af37'/%3E%3C/svg%3E">
 
     <style>
         /* ----------------------------------------------------
@@ -46,6 +47,7 @@
             background: var(--sidebar-bg);
             border-right: 1px solid var(--border);
             overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .main {
@@ -69,6 +71,8 @@
         .section {
             padding: 18px 22px;
             border-bottom: 1px solid #ffffff13;
+            display: grid;
+            gap: 10px;
         }
 
         .section h3 {
@@ -97,11 +101,7 @@
         }
 
         /* Lists */
-        .list {
-            display: grid;
-            gap: 6px;
-            margin-top: 10px;
-        }
+        .list { display: grid; gap: 6px; }
 
         .list-item {
             padding: 9px 12px;
@@ -201,11 +201,9 @@
             color: var(--accent);
         }
 
-        .row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
+        .row { display: flex; gap: 12px; }
+        .row .input { flex: 1 1 0; width: 100%; min-width: 0; }
+        .row + .row { margin-top: 12px; }
 
         /* Car list */
         .car-list {
@@ -271,7 +269,12 @@
             font-weight: 600;
             color: var(--muted);
             letter-spacing: 0.3px;
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 6px;
         }
+        .options-label + .row { margin-top: 8px; }
+        .row + .options-label { margin-top: 14px; }
 
         .footer {
             padding: 14px 20px;
@@ -356,6 +359,28 @@
                 </div>
             </div>
 
+            <div class="section">
+                <h3>Ano</h3>
+                <div class="options-row"><span class="options-label">Opções</span><span class="badge" id="year-count">0</span></div>
+                <div class="list" id="year-list"></div>
+
+                <div class="pagination">
+                    <button class="button secondary" id="year-prev">Anterior</button>
+                    <button class="button" id="year-next">Próxima</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Motor</h3>
+                <div class="options-row"><span class="options-label">Opções</span><span class="badge" id="engine-count">0</span></div>
+                <div class="list" id="engine-list"></div>
+
+                <div class="pagination">
+                    <button class="button secondary" id="engine-prev">Anterior</button>
+                    <button class="button" id="engine-next">Próxima</button>
+                </div>
+            </div>
+
             <div class="footer">Servidor local ativo • 127.0.0.1</div>
         </aside>
 
@@ -375,6 +400,10 @@
                     <div class="row">
                         <input class="input" id="car-fuel" placeholder="Combustível">
                         <input class="input" id="car-gear" placeholder="Câmbio">
+                    </div>
+
+                    <div class="row">
+                        <input class="input" id="car-fipe" placeholder="FIPE (ex: 001267-0)">
                     </div>
 
                     <div class="row">
@@ -410,8 +439,11 @@
                 <div class="card">
                     <h2>Prever Preço</h2>
 
+                    <div class="options-label">Detalhes do carro</div>
                     <div class="row">
-                        <select class="input" id="p-year"></select>
+                        <input class="input" id="p-year-display" placeholder="Ano do carro" readonly>
+                    </div>
+                    <div class="row">
                         <input class="input" id="p-engine" type="number" step="0.1" placeholder="Motor (ex: 2.0)">
                     </div>
 
@@ -425,7 +457,14 @@
                         <input class="input" id="p-gear" placeholder="Câmbio">
                     </div>
 
-                    <button class="button" id="predict-btn" disabled>Prever</button>
+                    <div class="options-label">Ano da compra</div>
+                    <div class="row">
+                        <select class="input" id="p-buyyear" required></select>
+                    </div>
+
+                    <div class="row" style="justify-content: flex-end;">
+                        <button class="button" id="predict-btn" disabled>Prever</button>
+                    </div>
 
                     <div id="prediction-result" class="result"></div>
                 </div>
