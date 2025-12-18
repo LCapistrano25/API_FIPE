@@ -3,7 +3,7 @@ from predict.serializers import PredictSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .model_loader import (
-    get_model_random_forest_regressor,
+    get_model_decision_tree_regressor,
     get_encoder_brand,
     get_encoder_fuel,
     get_encoder_model,
@@ -39,5 +39,5 @@ class PredictAPIView(APIView):
             gear_encoded,
         ]])
         
-        predict = get_model_random_forest_regressor().predict(input)
+        predict = get_model_decision_tree_regressor().predict(input)
         return Response({"prediction": float(predict[0])})
